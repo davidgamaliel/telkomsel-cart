@@ -1,0 +1,17 @@
+title Update Transaction Event By Adminn
+autonumber
+actor Admin
+participant Client
+participant Backend
+database "go_cart_database"
+participant RemitService
+
+Admin -> Client: deliver transaction
+Client -> Backend: PATCH /api/_exclusive/transactions/:id/deliver
+Backend -> go_cart_database: update transactions with state `delivered` and remit amount
+go_cart_database --> Backend: transaction updated successfully
+Backend --> RemitService: trigger remit event
+RemitService --> RemitService: remit amount to seller (in background)
+Backend --> Client: return updated transaction
+Client --> Admin: return updated transaction
+

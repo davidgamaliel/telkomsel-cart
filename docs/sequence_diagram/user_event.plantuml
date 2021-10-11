@@ -1,0 +1,41 @@
+title User Event
+autonumber
+actor User
+participant Client
+participant Backend
+database "go_cart_database"
+
+group Register
+  User -> Client: register
+  Client -> Backend: POST /api/users/register
+  Backend -> go_cart_database: insert user
+  go_cart_database --> Backend: user inserted successfully
+  Backend --> Client: user created successfully
+  Client --> User: success
+end
+
+group Sign In
+  User -> Client: sign in
+  Client -> Backend: POST /api/users/signin
+  Backend -> go_cart_database: select user by username and password
+  
+  alt user exist
+    go_cart_database --> Backend: return user
+    Backend -> Backend: generate jwt
+    Backend --> Client: signed in successfully
+    Client --> User: success
+  end
+
+  alt user not exist
+    go_cart_database --> Backend: return not found
+    Backend --> Client: return user not found
+    Client --> User: failed
+  end
+
+  alt user or password invalid
+    go_cart_database --> Backend: return not found
+    Backend --> Client: return user not found
+    Client --> User: failed
+  end
+end
+
